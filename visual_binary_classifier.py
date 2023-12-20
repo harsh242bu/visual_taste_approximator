@@ -29,7 +29,8 @@ class VisualBinaryClassifier:
         if LogReg_params is None:
             LogReg_params = {}
             LogReg_params['C']            = 1.0
-            LogReg_params['class_weight'] = [0.5, 0.5]
+            # LogReg_params['class_weight'] = [0.5, 0.5]
+            LogReg_params['class_weight'] = {0: 0.5, 1: 0.5}
             LogReg_params['penalty']      = 'l2'
             LogReg_params['l1_ratio']     = None
 
@@ -85,6 +86,8 @@ class VisualBinaryClassifier:
         X = np.concatenate((pretrained_features_positive, pretrained_features_negative))
         y = np.concatenate((np.ones((pretrained_features_positive.shape[0], 1)), np.zeros((pretrained_features_negative.shape[0], 1))))
 
+        print("X.shape = ", X.shape)
+        print("y.shape = ", y.shape)
         # fit the model from features
         self.fit(X, y)
 
@@ -124,6 +127,7 @@ class VisualBinaryClassifier:
         if self.verbose > 0:
             print('----------------------------------------------')
             print('training Logisitic Regression classifier...')
+        print('LogReg_params = ', self.LogReg_params)
         classifier_LR = LogisticRegression(**self.LogReg_params)
         classifier_LR.fit(X, y)
 

@@ -15,6 +15,7 @@ try:
 except:
     repo_dir = '/home/visual_taste_approximator/'
 
+print("repo_dir: ", repo_dir)
 os.chdir(repo_dir)
 
 import visual_binary_classifier

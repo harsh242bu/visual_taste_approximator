@@ -25,7 +25,7 @@ warnings.simplefilter("ignore", sklearn.exceptions.DataConversionWarning)
 
 
 def load_timm_model(model_name='convnext_xlarge_in22k', device='cpu'):
-
+    print('timm_loading_model: ', model_name)
     pretrained_model = timm.create_model(model_name, pretrained=True, num_classes=0).eval().to(device)
     model_config_dict = resolve_data_config({}, model=pretrained_model)
     model_preprocess = create_transform(**model_config_dict)
@@ -78,6 +78,7 @@ def extract_pretrained_features(base_image_folder, model_to_use='CLIP_ViTL_14@33
 
     # load requested model
     device = "cuda" if torch.cuda.is_available() else "cpu"
+    print('using device (extract_pretrained_features): ', device)
 
     if   model_to_use == 'CLIP_ViTL_14@336':
         pretrained_model, model_preprocess = clip.load("ViT-L/14@336px", device=device)
@@ -127,6 +128,7 @@ def extract_pretrained_features(base_image_folder, model_to_use='CLIP_ViTL_14@33
         pretrained_model, model_preprocess = load_timm_model(model_name='beit_large_patch16_512', device=device)
     elif model_to_use == 'BEiT_L_16_384':
         pretrained_model, model_preprocess = load_timm_model(model_name='beit_large_patch16_384', device=device)
+        # pretrained_model, model_preprocess = load_timm_model(model_name='beit_large_patch16_384.in22k_ft_in22k_in1k', device=device)
     elif model_to_use == 'BEiT_L_16_224':
         pretrained_model, model_preprocess = load_timm_model(model_name='beit_large_patch16_224', device=device)
 
@@ -162,8 +164,14 @@ def extract_pretrained_features(base_image_folder, model_to_use='CLIP_ViTL_14@33
             continue
 
         # extract the features
-        curr_image_PIL = Image.open(curr_image_filename)
-        curr_image_PIL = curr_image_PIL.convert("RGB")
+        try:
+            curr_image_PIL = Image.open(curr_image_filename)
+            curr_image_PIL = curr_image_PIL.convert("RGB")
+        except:
+            print('error opening image: ', curr_image_filename)
+            continue
+        # curr_image_PIL = Image.open(curr_image_filename)
+        # curr_image_PIL = curr_image_PIL.convert("RGB")
 
         with torch.no_grad():
             if 'CLIP' in model_to_use:

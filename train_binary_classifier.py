@@ -30,7 +30,7 @@ parser.add_argument("--models_folder", type=str, default="models_folder",
 parser.add_argument("--model_name", type=str, default="proper_portrait_classifier",
                     help="the prefix name of the model that will be saved")
 
-parser.add_argument("--num_features_sets", type=int, default=7, choices=[1,2,4,7],
+parser.add_argument("--num_features_sets", type=int, default=7, choices=[1,2,4,6,7],
                     help="number of pretrained features sets to use (more features takes longer but more accurate)")
 
 args = parser.parse_args()
@@ -62,7 +62,8 @@ kNN_params['verbose']     = 1
 # Logistic Regression params
 LogReg_params = {}
 LogReg_params['C'] = 0.75
-LogReg_params['class_weight'] = [0.5, 0.5]
+# LogReg_params['class_weight'] = [0.5, 0.5]
+LogReg_params['class_weight'] = {0: 0.5, 1: 0.5}
 LogReg_params['penalty'] = 'l2'
 LogReg_params['l1_ratio'] = None
 
@@ -90,6 +91,11 @@ if num_features_sets == 7:
     models_for_features = ['DINO_ViTS_8', 'DINO_ViTB_8',
                             'CLIP_ViTL_14@336', 'CLIP_ResNet50x64', 'CLIP_ViTL_14',
                             'ConvNext_XL_Imagenet21k', 'BEiT_L_16_384']
+elif num_features_sets == 6:
+    # best classification accuracy with full 6 feature sets 
+    models_for_features = ['DINO_ViTS_8', 'DINO_ViTB_8',
+                            'CLIP_ViTL_14@336', 'CLIP_ResNet50x64', 'CLIP_ViTL_14',
+                            'ConvNext_XL_Imagenet21k']
 elif num_features_sets == 4:
     # slightly reduced accuracy with 4 feature sets (~4 minutes per 1000 images on 3080 GPU)
     models_for_features = ['CLIP_ViTL_14@336', 'CLIP_ResNet50x64', 'CLIP_ViTL_14', 'ConvNext_XL_Imagenet21k']

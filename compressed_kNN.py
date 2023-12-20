@@ -9,7 +9,7 @@ class Compressed_kNN:
 
 
     def __init__(self, n_cols=100, n_rows=500, n_neighbors=5, whiten=False,
-                 minibatch_size_pca=10000, minibatch_size_kmeans=5000, show_plots=False, verbose=0, random_state=1):
+                 minibatch_size_pca=10000, minibatch_size_kmeans=5000, show_plots=False, verbose=0, random_state=2023):
         """TextureModel = TextureModel_PCA(n_components, minibatch_size, random_state)"""
         self.n_cols      = n_cols
         self.n_rows      = n_rows
@@ -33,12 +33,17 @@ class Compressed_kNN:
 
         # PCA to compress columns
         n_components = min(self.n_cols, int(0.9 * num_features_x), int(0.9 * num_samples))
+        print("n_components = ", n_components)
 
         if num_samples < 200000:
-            PCA_cols_compressor = decomposition.PCA(n_components=n_components, whiten=self.whiten)
+            print('using PCA............')
+            PCA_cols_compressor = decomposition.PCA(n_components=n_components, whiten=self.whiten, random_state=self.random_state,
+                                                    svd_solver="full")
         else:
+            print('using IncrementalPCA............')
             minibatch_size_pca = min(self.minibatch_size_pca, num_samples)
             PCA_cols_compressor = decomposition.IncrementalPCA(n_components=n_components, batch_size=minibatch_size_pca, whiten=self.whiten)
+        print("Fitting PCA_cols_compressor...")
         PCA_cols_compressor.fit(X)
 
         explained_variance_ratio_pca = PCA_cols_compressor.explained_variance_ratio_.sum()
@@ -54,13 +59,16 @@ class Compressed_kNN:
 
         # k-means to compress rows
         X_reduced_cols = PCA_cols_compressor.transform(X)
+        print("X_reduced_cols.shape = ", X_reduced_cols.shape)
 
         n_clusters = min(self.n_rows, int(0.8 * self.minibatch_size_kmeans), int(0.8 * num_samples))
+        print("n_clusters = ", n_clusters)
 
         if num_samples < 20000:
             KMeans_rows_compressor = cluster.KMeans(n_clusters=n_clusters)
         else:
             minibatch_size_kmeans = int(min(self.minibatch_size_kmeans, num_samples))
+            print("minibatch_size_kmeans = ", minibatch_size_kmeans)
             KMeans_rows_compressor = cluster.MiniBatchKMeans(n_clusters=n_clusters, batch_size=minibatch_size_kmeans)
         KMeans_rows_compressor.fit(X_reduced_cols)
 
