@@ -1,0 +1,9 @@
+
+images_to_label
+likely_negative
+likely_positive
+models_folder
+negatively_labeled
+positively_labeled
+test_folder
+vta_images
