@@ -43,7 +43,7 @@ parser.add_argument("--delete_src", action='store_true',
                     help="if enabled, deletes files in src 'test_folder' that are transfered to output positive and negative folders")
 
 parser.add_argument("--cache_dir", type=str, default="~/.cache",
-                    help="directory to download pretrained models")
+                    help="directory to where to download the pretrained models used to generate features (like DINO_ViTS_8, CLIP_ResNet50x64, etc)")
 
 args = parser.parse_args()
 

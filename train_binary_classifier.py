@@ -39,7 +39,7 @@ parser.add_argument("--num_features_sets", type=int, default=6, choices=[1,2,4,6
                     help="number of pretrained features sets to use (more features takes longer but more accurate)")
 
 parser.add_argument("--cache_dir", type=str, default="~/.cache",
-                    help="directory to download pretrained models")
+                    help="directory to where to download the pretrained models used to generate features (like DINO_ViTS_8, CLIP_ResNet50x64, etc)")
 
 args = parser.parse_args()
 

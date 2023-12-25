@@ -1,9 +1,18 @@
 
-images_to_label
+__pycache__
+# images_to_label
 likely_negative
 likely_positive
 # models_folder
-negatively_labeled
-positively_labeled
+# negatively_labeled
+# positively_labeled
 test_folder
 vta_images
+
+likely_negative_eyes_closed/
+likely_negative_eyes_closed_part2/
+likely_negative_eyes_open_part1/
+likely_positive_eyes_closed_part1/
+likely_positive_eyes_closed_part2/
+likely_positive_eyes_open_part1/
+likely_positive_eyes_open_part2/
