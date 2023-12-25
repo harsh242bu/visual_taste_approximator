@@ -9,6 +9,7 @@ try:
 except:
     repo_dir = '/home/visual_taste_approximator/'
 
+
 os.chdir(repo_dir)
 
 import visual_binary_classifier
@@ -41,7 +42,18 @@ parser.add_argument("--negative_threshold", type=float, default=0.3,
 parser.add_argument("--delete_src", action='store_true',
                     help="if enabled, deletes files in src 'test_folder' that are transfered to output positive and negative folders")
 
+parser.add_argument("--cache_dir", type=str, default="~/.cache",
+                    help="directory to download pretrained models")
+
 args = parser.parse_args()
+
+# set cache dir for huggingface, torch and clip
+os.environ['HF_HOME'] = os.path.join(args.cache_dir, "huggingface/home")
+os.environ['HF_DATASETS_CACHE'] = os.path.join(args.cache_dir, "huggingface/datasets")
+os.environ['TRANSFORMERS_CACHE'] = os.path.join(args.cache_dir, "huggingface/transformers")
+os.environ['TORCH_HOME'] = os.path.join(args.cache_dir, "torch")
+clip_cache_dir = os.path.join(args.cache_dir, "clip")
+
 
 test_folder_name = args.test_folder
 dst_positive_folder_name = args.positive_out_folder
@@ -62,7 +74,7 @@ binary_classifier = visual_binary_classifier.load_pretrained_model(model_full_pa
 
 folder_to_classify = os.path.join(repo_dir, test_folder_name)
 
-predicted_probability, image_filename_map = binary_classifier.predict_from_folder(folder_to_classify)
+predicted_probability, image_filename_map = binary_classifier.predict_from_folder(folder_to_classify, clip_cache_dir=clip_cache_dir)
 
 # plot histogram of predicted probabilties
 fraction_above_085 = (predicted_probability >= 0.85).mean()

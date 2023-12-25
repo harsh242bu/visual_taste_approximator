@@ -16,7 +16,8 @@ class VisualBinaryClassifier:
 
     def __init__(self, kNN_params=None, LogReg_params=None, LightGBM_params=None, classfier_weights=[0.3,0.4,0.3],
                  models_for_features=['CLIP_ViTL_14@336','ConvNext_XL_Imagenet21k'], nromalize_features=True,
-                 models_for_duplicates=['CLIP_ViTL_14@336'], duplicates_similarity_threshold=0.99, verbose=-1):
+                 models_for_duplicates=['CLIP_ViTL_14@336'], duplicates_similarity_threshold=0.99, clip_cache_dir="~/.cache/clip",
+                 verbose=-1):
 
         if kNN_params is None:
             kNN_params = {}
@@ -69,6 +70,7 @@ class VisualBinaryClassifier:
         self.nromalize_features = nromalize_features
         self.models_for_duplicates = models_for_duplicates
         self.duplicates_similarity_threshold = duplicates_similarity_threshold
+        self.clip_cache_dir = clip_cache_dir
 
 
     def fit_from_folders(self, positive_folder, negative_folder, remove_duplicates=False,
@@ -80,8 +82,10 @@ class VisualBinaryClassifier:
             delete_near_duplicates(negative_folder, models_to_use=self.models_for_duplicates, similarity_threshold=self.duplicates_similarity_threshold)
 
         # extract features from all images in the provided images folders
-        pretrained_features_positive, _ = extract_and_collect_pretrained_features(positive_folder, models_to_use=self.models_for_features, nromalize_features=self.nromalize_features)
-        pretrained_features_negative, _ = extract_and_collect_pretrained_features(negative_folder, models_to_use=self.models_for_features, nromalize_features=self.nromalize_features)
+        pretrained_features_positive, _ = extract_and_collect_pretrained_features(positive_folder, models_to_use=self.models_for_features, nromalize_features=self.nromalize_features,
+                                                                                   clip_cache_dir=self.clip_cache_dir)
+        pretrained_features_negative, _ = extract_and_collect_pretrained_features(negative_folder, models_to_use=self.models_for_features, nromalize_features=self.nromalize_features,
+                                                                                   clip_cache_dir=self.clip_cache_dir)
 
         X = np.concatenate((pretrained_features_positive, pretrained_features_negative))
         y = np.concatenate((np.ones((pretrained_features_positive.shape[0], 1)), np.zeros((pretrained_features_negative.shape[0], 1))))
@@ -145,9 +149,10 @@ class VisualBinaryClassifier:
         self.n_features = X.shape[1]
 
 
-    def predict_from_folder(self, folder_to_classify, classifier_weights=None):
+    def predict_from_folder(self, folder_to_classify, classifier_weights=None, clip_cache_dir="~/.cache/clip"):
 
-        pretrained_features, image_filename_map = extract_and_collect_pretrained_features(folder_to_classify, models_to_use=self.models_for_features, nromalize_features=self.nromalize_features)
+        pretrained_features, image_filename_map = extract_and_collect_pretrained_features(folder_to_classify, models_to_use=self.models_for_features, nromalize_features=self.nromalize_features,
+                                                                                          clip_cache_dir=clip_cache_dir)
         predicted_probability = self.predict(pretrained_features, classifier_weights=classifier_weights)
 
         return predicted_probability, image_filename_map

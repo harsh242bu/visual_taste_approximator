@@ -21,8 +21,10 @@ from compressed_kNN import Compressed_kNN
 import warnings
 warnings.simplefilter("ignore", sklearn.exceptions.DataConversionWarning)
 
-#%% helper functions
+# You can change the cache download directory if you want
+# clip_cache_dir = "~/.cache/clip"
 
+#%% helper functions
 
 def load_timm_model(model_name='convnext_xlarge_in22k', device='cpu'):
     print('timm_loading_model: ', model_name)
@@ -47,7 +49,7 @@ def load_dino_model(model_name='dino_vitb8', device='cpu'):
     return pretrained_model, model_preprocess
 
 
-def extract_pretrained_features(base_image_folder, model_to_use='CLIP_ViTL_14@336'):
+def extract_pretrained_features(base_image_folder, model_to_use='CLIP_ViTL_14@336', clip_cache_dir="~/.cache/clip"):
 
     # assume that the folder contains only images (in terms of file endings)
     all_image_filenames = glob.glob(os.path.join(base_image_folder, '*.*'))
@@ -81,23 +83,23 @@ def extract_pretrained_features(base_image_folder, model_to_use='CLIP_ViTL_14@33
     print('using device (extract_pretrained_features): ', device)
 
     if   model_to_use == 'CLIP_ViTL_14@336':
-        pretrained_model, model_preprocess = clip.load("ViT-L/14@336px", device=device)
+        pretrained_model, model_preprocess = clip.load("ViT-L/14@336px", device=device, download_root=clip_cache_dir)
     elif model_to_use == 'CLIP_ViTL_14':
-        pretrained_model, model_preprocess = clip.load("ViT-L/14", device=device)
+        pretrained_model, model_preprocess = clip.load("ViT-L/14", device=device, download_root=clip_cache_dir)
     elif model_to_use == 'CLIP_ViTB_16':
-        pretrained_model, model_preprocess = clip.load("ViT-B/16", device=device)
+        pretrained_model, model_preprocess = clip.load("ViT-B/16", device=device, download_root=clip_cache_dir)
     elif model_to_use == 'CLIP_ViTB_32':
-        pretrained_model, model_preprocess = clip.load("ViT-B/32", device=device)
+        pretrained_model, model_preprocess = clip.load("ViT-B/32", device=device, download_root=clip_cache_dir)
     elif model_to_use == 'CLIP_ResNet50x64':
-        pretrained_model, model_preprocess = clip.load("RN50x64", device=device)
+        pretrained_model, model_preprocess = clip.load("RN50x64", device=device, download_root=clip_cache_dir)
     elif model_to_use == 'CLIP_ResNet50x16':
-        pretrained_model, model_preprocess = clip.load("RN50x16", device=device)
+        pretrained_model, model_preprocess = clip.load("RN50x16", device=device, download_root=clip_cache_dir)
     elif model_to_use == 'CLIP_ResNet50x4':
-        pretrained_model, model_preprocess = clip.load("RN50x4", device=device)
+        pretrained_model, model_preprocess = clip.load("RN50x4", device=device, download_root=clip_cache_dir)
     elif model_to_use == 'CLIP_ResNet50x1':
-        pretrained_model, model_preprocess = clip.load("RN50", device=device)
+        pretrained_model, model_preprocess = clip.load("RN50", device=device, download_root=clip_cache_dir)
     elif model_to_use == 'CLIP_ResNet101':
-        pretrained_model, model_preprocess = clip.load("RN101", device=device)
+        pretrained_model, model_preprocess = clip.load("RN101", device=device, download_root=clip_cache_dir)
 
     elif model_to_use == 'DINO_ResNet50':
         pretrained_model, model_preprocess = load_dino_model("dino_resnet50", device=device)
@@ -231,12 +233,13 @@ def collect_pretrained_features(base_image_folder, requested_features_model='CLI
     return pretrained_image_features_matrix, image_filename_map
 
 
-def extract_and_collect_pretrained_features(images_base_folder, models_to_use=['CLIP_ViTL_14@336','CLIP_ResNet50x64'], nromalize_features=True):
+def extract_and_collect_pretrained_features(images_base_folder, models_to_use=['CLIP_ViTL_14@336','CLIP_ResNet50x64'], nromalize_features=True, 
+                                            clip_cache_dir="~/.cache/clip"):
     # this function will extract the features of all models in "models_to_use", collect the  and concatenate them
 
     # extracting features
     for model_to_use in models_to_use:
-        extract_pretrained_features(images_base_folder, model_to_use=model_to_use)
+        extract_pretrained_features(images_base_folder, model_to_use=model_to_use, clip_cache_dir=clip_cache_dir)
 
     # collecting features
     features_list = []

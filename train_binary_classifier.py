@@ -6,6 +6,11 @@ try:
 except:
     repo_dir = '/home/visual_taste_approximator/'
 
+os.environ['HF_HOME'] = "/projectnb/ivc-ml/harshk/.cache/huggingface/home"
+os.environ['HF_DATASETS_CACHE'] = "/projectnb/ivc-ml/harshk/.cache/huggingface/datasets"
+os.environ['TRANSFORMERS_CACHE'] = "/projectnb/ivc-ml/harshk/.cache/huggingface/transformers"
+os.environ['TORCH_HOME'] = "/projectnb/ivc-ml/harshk/.cache/torch"
+
 os.chdir(repo_dir)
 
 import visual_binary_classifier
@@ -30,10 +35,20 @@ parser.add_argument("--models_folder", type=str, default="models_folder",
 parser.add_argument("--model_name", type=str, default="proper_portrait_classifier",
                     help="the prefix name of the model that will be saved")
 
-parser.add_argument("--num_features_sets", type=int, default=7, choices=[1,2,4,6,7],
+parser.add_argument("--num_features_sets", type=int, default=6, choices=[1,2,4,6,7],
                     help="number of pretrained features sets to use (more features takes longer but more accurate)")
 
+parser.add_argument("--cache_dir", type=str, default="~/.cache",
+                    help="directory to download pretrained models")
+
 args = parser.parse_args()
+
+# set cache dir for huggingface, torch and clip
+os.environ['HF_HOME'] = os.path.join(args.cache_dir, "huggingface/home")
+os.environ['HF_DATASETS_CACHE'] = os.path.join(args.cache_dir, "huggingface/datasets")
+os.environ['TRANSFORMERS_CACHE'] = os.path.join(args.cache_dir, "huggingface/transformers")
+os.environ['TORCH_HOME'] = os.path.join(args.cache_dir, "torch")
+clip_cache_dir = os.path.join(args.cache_dir, "clip")
 
 # positive_folder = os.path.join(repo_dir, 'positively_labeled')
 # negative_folder = os.path.join(repo_dir, 'negatively_labeled')
@@ -120,6 +135,7 @@ binary_classifier = visual_binary_classifier.VisualBinaryClassifier(kNN_params=k
                                                                     nromalize_features=nromalize_features,
                                                                     models_for_duplicates=models_for_duplicates,
                                                                     duplicates_similarity_threshold=duplicates_similarity_threshold,
+                                                                    clip_cache_dir=clip_cache_dir,
                                                                     verbose=verbose)
 
 
